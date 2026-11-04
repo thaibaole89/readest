@@ -91,7 +91,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     readingProgressStyle === 'fraction'
       ? isVertical
         ? '{current} · {total}'
-        : '{current} / {total}'
+        : '{current}'
       : '{percent}%';
 
   const lang = localStorage?.getItem('i18nextLng') || '';
@@ -427,7 +427,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           isVertical ? 'h-full' : 'w-full',
           // Sticky bar grows on the left; the info widgets pack to the right
           // with even gaps. Without it, keep the 3-zone left/center/right row.
-          stickyBarActive ? 'gap-x-3' : 'justify-between gap-x-2',
+          stickyBarActive ? 'gap-x-3' : 'justify-center gap-x-2',
         )}
         style={isVertical ? {} : { height: `${viewSettings.marginBottomPx}px` }}
       >
@@ -507,15 +507,15 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
         <div
           className={clsx(
-            'progress-readout items-center text-end tabular-nums truncate',
+            'progress-readout items-center text-center tabular-nums truncate text-base-content/45',
             !stickyBarActive && 'flex-1 min-w-0',
           )}
         >
           {viewSettings.showProgressInfo && (
             <span
               className={clsx(
-                'progress-info-label text-end',
-                isVertical ? 'mt-auto' : 'ms-auto',
+                'progress-info-label text-center',
+                isVertical && 'mt-auto',
                 pillClass,
               )}
               style={pillStyle}

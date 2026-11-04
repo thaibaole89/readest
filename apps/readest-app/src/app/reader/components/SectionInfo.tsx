@@ -52,6 +52,8 @@ const SectionInfo: React.FC<SectionInfoProps> = ({
   const getBookData = useBookDataStore((s) => s.getBookData);
   const viewSettings = getViewSettings(bookKey)!;
   const bookData = getBookData(bookKey);
+  // Personal fork: the running header shows the book title, as Apple Books does.
+  const headerTitle = bookData?.book?.title || section;
   const topInset = Math.max(
     gridInsets.top,
     appService?.isAndroidApp && systemUIVisible ? statusBarHeight / 2 : 0,
@@ -115,7 +117,7 @@ const SectionInfo: React.FC<SectionInfoProps> = ({
       />
       <div
         className={clsx(
-          'sectioninfo absolute flex items-center overflow-hidden font-sans',
+          'sectioninfo absolute flex items-center justify-center overflow-hidden font-sans',
           // A lifted band overlaps the notch mask (z-10) and must win as the
           // later sibling — z-auto would lose to any positive z. Only when
           // lifted: an unconditional z-10 also covers the desktop HeaderBar
@@ -126,7 +128,7 @@ const SectionInfo: React.FC<SectionInfoProps> = ({
             ? 'font-normal'
             : blended
               ? 'text-white/75 mix-blend-difference font-light'
-              : 'text-base-content font-light',
+              : 'text-base-content/45 font-medium',
           isVertical ? 'writing-vertical-rl max-h-[85%]' : 'top-0',
           hidden && 'invisible',
         )}
@@ -194,7 +196,7 @@ const SectionInfo: React.FC<SectionInfoProps> = ({
           )}
           style={chip?.kind === 'custom' && section ? { backgroundColor: chip.color } : undefined}
         >
-          {section || ''}
+          {headerTitle || ''}
         </span>
       </div>
     </>

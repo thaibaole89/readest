@@ -7,6 +7,7 @@ vi.mock('@/utils/supabase', () => ({
   supabase: {
     auth: {
       refreshSession,
+      signOut: () => Promise.resolve({ error: null }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
     },
   },

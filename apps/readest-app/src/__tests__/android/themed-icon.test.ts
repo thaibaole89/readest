@@ -33,7 +33,8 @@ const resRoot = resolve(appRoot, 'src-tauri/gen/android/app/src/main/res');
 
 const DENSITIES = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
 
-describe('Android themed (monochrome) launcher icon', () => {
+// Personal fork: the upstream monochrome mipmaps are the Readest logo, so the layer is gone.
+describe.skip('Android themed (monochrome) launcher icon', () => {
   it('declares a <monochrome> layer in the adaptive icon', () => {
     const xml = readFileSync(resolve(resRoot, 'mipmap-anydpi-v26/ic_launcher.xml'), 'utf8');
     expect(xml).toMatch(/<monochrome\b/);

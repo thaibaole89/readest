@@ -8,7 +8,14 @@ vi.mock('@/utils/misc', async (importOriginal) => {
   };
 });
 
-import { transformStylesheet, getFootnoteStyles } from '@/utils/style';
+import { transformStylesheet, getFootnoteStyles, getStyles } from '@/utils/style';
+import {
+  DEFAULT_BOOK_FONT,
+  DEFAULT_BOOK_LAYOUT,
+  DEFAULT_BOOK_STYLE,
+  DEFAULT_VIEW_CONFIG,
+} from '@/services/constants';
+import type { ViewSettings } from '@/types/book';
 
 describe('transformStylesheet', () => {
   const VW = 1000;
@@ -779,5 +786,20 @@ describe('getFootnoteStyles', () => {
     expect(styles).toContain('a:any-link');
     expect(styles).toContain('aside[epub|type~="footnote"]');
     expect(styles).toContain('aside[epub|type~="endnote"]');
+  });
+});
+
+describe('duokan footnote classes on body text', () => {
+  it('keeps paragraphs a converter wrapped in a footnote-classed list visible', () => {
+    const styles = getStyles({
+      ...DEFAULT_BOOK_FONT,
+      ...DEFAULT_BOOK_LAYOUT,
+      ...DEFAULT_BOOK_STYLE,
+      ...DEFAULT_VIEW_CONFIG,
+    } as unknown as ViewSettings);
+    expect(styles).toContain('.duokan-footnote-content:not(ol:has(> p))');
+    expect(styles).not.toMatch(
+      /\.duokan-footnote-content,\s*\.duokan-footnote-item\s*\{\s*display: none/,
+    );
   });
 });

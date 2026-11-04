@@ -646,7 +646,9 @@ describe('TTSPlayerSheet', () => {
     expect(routerPush).not.toHaveBeenCalled();
   });
 
-  test('offline audio row: a free user sees a Premium badge and is routed to upgrade', () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('offline audio row: a free user sees a Premium badge and is routed to upgrade', () => {
     mockQuota.userProfilePlan = 'free';
     const props = makeProps({ downloads: makeDownloads() });
     render(<TTSPlayerSheet {...props} />);
@@ -659,7 +661,9 @@ describe('TTSPlayerSheet', () => {
     expect(screen.queryByText('chapters-view')).toBeNull();
   });
 
-  test('offline audio row: a signed-out user is routed to sign-in', () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('offline audio row: a signed-out user is routed to sign-in', () => {
     mockAuth.user = null;
     mockQuota.userProfilePlan = undefined;
     const props = makeProps({ downloads: makeDownloads() });
@@ -852,7 +856,9 @@ describe('TTSPlayerSheet', () => {
     expect(kokoro.className).not.toContain('font-semibold');
   });
 
-  test('a Readest voice the plan lacks sends the reader to upgrade', async () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('a Readest voice the plan lacks sends the reader to upgrade', async () => {
     const groups = [
       {
         id: 'readest-tts',
@@ -877,7 +883,9 @@ describe('TTSPlayerSheet', () => {
     expect(props.onClose).toHaveBeenCalled();
   });
 
-  test('a signed-out reader tapping a Readest voice is sent to sign in', async () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('a signed-out reader tapping a Readest voice is sent to sign in', async () => {
     mockAuth.user = null;
     const groups = [
       {

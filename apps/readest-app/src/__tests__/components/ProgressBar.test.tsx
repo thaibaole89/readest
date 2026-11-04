@@ -216,7 +216,7 @@ describe('ProgressBar — calibrated page pair', () => {
 
     const { container } = renderProgressBar();
 
-    expect(container.querySelector('.progress-info-label')?.textContent).toBe('3 / 5');
+    expect(container.querySelector('.progress-info-label')?.textContent).toBe('3');
   });
 
   it('advances exactly one page per turn once chapters are measured', () => {
@@ -228,7 +228,7 @@ describe('ProgressBar — calibrated page pair', () => {
 
     const { container } = renderProgressBar();
 
-    expect(container.querySelector('.progress-info-label')?.textContent).toBe('6 / 12');
+    expect(container.querySelector('.progress-info-label')?.textContent).toBe('6');
   });
 
   it('opens on the byte-grid estimate before any chapter is measured', () => {
@@ -238,7 +238,7 @@ describe('ProgressBar — calibrated page pair', () => {
 
     const { container } = renderProgressBar();
 
-    expect(container.querySelector('.progress-info-label')?.textContent).toBe('4 / 5');
+    expect(container.querySelector('.progress-info-label')?.textContent).toBe('4');
   });
 
   it('keeps chunked chapters smooth via the byte-domain fraction', () => {
@@ -252,7 +252,7 @@ describe('ProgressBar — calibrated page pair', () => {
 
     const { container } = renderProgressBar();
 
-    expect(container.querySelector('.progress-info-label')?.textContent).toBe('503 / 1002');
+    expect(container.querySelector('.progress-info-label')?.textContent).toBe('503');
   });
 
   it('falls back to the book-level pair in scrolled mode', () => {
@@ -261,7 +261,7 @@ describe('ProgressBar — calibrated page pair', () => {
 
     const { container } = renderProgressBar();
 
-    expect(container.querySelector('.progress-info-label')?.textContent).toBe('3 / 5');
+    expect(container.querySelector('.progress-info-label')?.textContent).toBe('3');
   });
 
   it('keeps real page pairs for fixed-layout books', () => {
@@ -270,7 +270,7 @@ describe('ProgressBar — calibrated page pair', () => {
 
     const { container } = renderProgressBar();
 
-    expect(container.querySelector('.progress-info-label')?.textContent).toBe('3 / 5');
+    expect(container.querySelector('.progress-info-label')?.textContent).toBe('3');
   });
 });
 

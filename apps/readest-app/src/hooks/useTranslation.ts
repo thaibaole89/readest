@@ -7,5 +7,10 @@ export type TranslationFunc = (key: string, options?: Record<string, number | st
 export const useTranslation = (namespace: string = 'translation') => {
   const { t } = _useTranslation(namespace);
 
-  return useCallback((key: string, options = {}) => t(key, { defaultValue: key, ...options }), [t]);
+  // Personal fork: every UI string shows this app's name, in every language.
+  return useCallback(
+    (key: string, options = {}) =>
+      String(t(key, { defaultValue: key, ...options })).replace(/\bReadest\b/g, 'My Book Reader'),
+    [t],
+  );
 };

@@ -125,12 +125,8 @@ export const navigateToReader = (
   }
 };
 
-export const navigateToLogin = (router: ReturnType<typeof useRouter>) => {
-  const pathname = window.location.pathname;
-  const search = window.location.search;
-  const currentPath = pathname !== '/auth' ? pathname + search : '/';
-  router.push(`/auth?redirect=${encodeURIComponent(currentPath)}`);
-};
+// Personal fork: no accounts, so sign-in and plan pages are never opened.
+export const navigateToLogin = (_router: ReturnType<typeof useRouter>) => {};
 
 export const navigateToHardcoverConnect = (router: ReturnType<typeof useRouter>) => {
   const redirect = encodeURIComponent(window.location.pathname + window.location.search);
@@ -140,11 +136,7 @@ export const navigateToHardcoverConnect = (router: ReturnType<typeof useRouter>)
 // Remember the opener so leaving the profile returns to it, e.g. the book
 // being read when Plans was opened from the reader settings (#6607). The
 // direction picks the slide of the route view transition (useAppRouter).
-export const navigateToProfile = (router: ReturnType<typeof useRouter>) => {
-  const { pathname, search } = window.location;
-  document.documentElement.setAttribute('data-nav-direction', 'forward');
-  router.push(`/user?redirect=${encodeURIComponent(pathname + search)}`);
-};
+export const navigateToProfile = (_router: ReturnType<typeof useRouter>) => {};
 
 export const navigateBackFromProfile = (
   router: ReturnType<typeof useRouter>,

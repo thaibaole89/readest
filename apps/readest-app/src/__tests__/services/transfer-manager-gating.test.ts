@@ -78,6 +78,7 @@ const settingsLoaded = (overrides: Partial<SystemSettings> = {}): void => {
   useSettingsStore.setState({
     settings: {
       version: 1,
+      readestCloud: { enabled: !overrides.webdav?.enabled },
       webdav: { enabled: false },
       googleDrive: { enabled: false },
       ...overrides,

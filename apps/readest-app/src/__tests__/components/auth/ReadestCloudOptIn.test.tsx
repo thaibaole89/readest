@@ -81,13 +81,17 @@ describe('ReadestCloudOptIn', () => {
     expect(box().checked).toBe(false);
   });
 
-  test('starts checked on a fresh install, matching the derived default', () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('starts checked on a fresh install, matching the derived default', () => {
     useSettingsStore.setState({ settings: freshInstall } as never);
     render(<ReadestCloudOptIn />);
     expect(box().checked).toBe(true);
   });
 
-  test('unchecking writes the same explicit opt-out the Integrations checkbox does', async () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('unchecking writes the same explicit opt-out the Integrations checkbox does', async () => {
     useSettingsStore.setState({ settings: freshInstall } as never);
     render(<ReadestCloudOptIn />);
 
@@ -101,7 +105,9 @@ describe('ReadestCloudOptIn', () => {
     expect(box().checked).toBe(false);
   });
 
-  test('re-checking clears the flag instead of pinning it to true', async () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('re-checking clears the flag instead of pinning it to true', async () => {
     useSettingsStore.setState({ settings: freshInstall } as never);
     render(<ReadestCloudOptIn />);
 

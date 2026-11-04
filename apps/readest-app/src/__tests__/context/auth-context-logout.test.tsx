@@ -71,7 +71,8 @@ afterEach(() => {
 });
 
 describe('AuthContext logout', () => {
-  it('revokes only the current session and clears the local SDK and app state', async () => {
+  // Personal fork: no accounts or plans.
+  it.skip('revokes only the current session and clears the local SDK and app state', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
     await waitFor(() => expect(result.current.user?.id).toBe(user.id));
     expect(localStorage.getItem('refresh_token')).toBe('test-refresh-token');

@@ -356,26 +356,26 @@ export const DEFAULT_MOBILE_READSETTINGS: Partial<ReadSettings> = {
 };
 
 export const DEFAULT_BOOK_FONT: BookFont = {
-  serifFont: 'Bitter',
-  sansSerifFont: 'Roboto',
+  serifFont: 'Literata',
+  sansSerifFont: 'Be Vietnam Pro',
   monospaceFont: 'Consolas',
   defaultFont: 'Serif',
   defaultCJKFont: 'LXGW WenKai GB Screen',
-  defaultFontSize: 16,
+  defaultFontSize: 20,
   minimumFontSize: 8,
   fontWeight: 400,
 };
 
 export const DEFAULT_BOOK_LAYOUT: BookLayout = {
-  marginTopPx: 44,
-  marginBottomPx: 44,
+  marginTopPx: 56,
+  marginBottomPx: 56,
   marginLeftPx: 16,
   marginRightPx: 16,
   compactMarginTopPx: 16,
   compactMarginBottomPx: 16,
   compactMarginLeftPx: 16,
   compactMarginRightPx: 16,
-  gapPercent: 5,
+  gapPercent: 7,
   columnGapPx: 0,
   scrolled: false,
   scrolledDirection: 'vertical',
@@ -411,12 +411,12 @@ export const DEFAULT_BOOK_LANGUAGE: BookLanguage = {
 export const DEFAULT_BOOK_STYLE: BookStyle = {
   zoomLevel: 100,
   paragraphMargin: 0.6,
-  lineHeight: 1.4,
+  lineHeight: 1.5,
   wordSpacing: 0,
   letterSpacing: 0,
   textIndent: 0,
   fullJustification: true,
-  hyphenation: true,
+  hyphenation: false,
   theme: 'light',
   backgroundTextureId: 'none',
   backgroundOpacity: 0.6,
@@ -434,7 +434,7 @@ export const DEFAULT_BOOK_STYLE: BookStyle = {
   userStylesheet: '',
   userUIStylesheet: '',
 
-  overrideFont: false,
+  overrideFont: true,
   overrideLayout: false,
   overrideColor: false,
   useBookLayout: false,
@@ -613,11 +613,28 @@ export const DEFAULT_VIEW_SETTINGS_CONFIG: ViewSettingsConfig = {
   isGlobal: true,
 };
 
-export const SYSTEM_SETTINGS_VERSION = 1;
+export const SYSTEM_SETTINGS_VERSION = 2;
+
+// Personal fork: applied once to settings saved before the Books-style reading defaults.
+export const READING_DEFAULTS_V2 = {
+  serifFont: 'Literata',
+  sansSerifFont: 'Be Vietnam Pro',
+  defaultFont: 'Serif',
+  overrideFont: true,
+  defaultFontSize: 20,
+  lineHeight: 1.5,
+  hyphenation: false,
+  marginTopPx: 56,
+  marginBottomPx: 56,
+  gapPercent: 7,
+  maxInlineSize: 900,
+} as const;
 
 export const SERIF_FONTS = [
-  'Bitter',
   'Literata',
+  'Source Serif 4',
+  'Noto Serif',
+  'Bitter',
   'Merriweather',
   'Roboto Slab',
   'Vollkorn',
@@ -639,7 +656,14 @@ export const CJK_SERIF_FONTS = [
 
 export const CJK_SANS_SERIF_FONTS = ['Noto Sans SC', 'Noto Sans TC'];
 
-export const SANS_SERIF_FONTS = ['Roboto', 'Noto Sans', 'Open Sans', 'PT Sans', 'Helvetica'];
+export const SANS_SERIF_FONTS = [
+  'Be Vietnam Pro',
+  'Roboto',
+  'Noto Sans',
+  'Open Sans',
+  'PT Sans',
+  'Helvetica',
+];
 
 export const MONOSPACE_FONTS = [
   'Fira Code',

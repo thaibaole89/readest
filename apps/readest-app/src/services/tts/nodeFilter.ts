@@ -33,5 +33,11 @@ export const createTTSNodeFilter = () => {
   // Ruby is decided per base-run/reading pair rather than by tag name: a kana
   // <rt> is spoken in place of the kanji it annotates, anything else keeps the
   // pre-#5539 behaviour of speaking the base and dropping the annotation.
-  return (node: Node): number => (isMutedRubyNode(node) ? NodeFilter.FILTER_REJECT : reject(node));
+  return (node: Node): number => {
+    if (isMutedRubyNode(node)) return NodeFilter.FILTER_REJECT;
+    // Personal fork: <ol class="duokan-footnote-content"><p> is body text (see getPageLayoutStyles).
+    const isMislabelledBodyText =
+      node.nodeType === Node.ELEMENT_NODE && (node as Element).matches('ol:has(> p)');
+    return isMislabelledBodyText ? NodeFilter.FILTER_SKIP : reject(node);
+  };
 };

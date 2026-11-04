@@ -146,14 +146,18 @@ describe('TTSPanel custom TTS services premium gate', () => {
 
   afterEach(cleanup);
 
-  it('sends a signed-out reader to sign in', () => {
+  // Personal fork: no accounts or plans.
+
+  it.skip('sends a signed-out reader to sign in', () => {
     render(<TTSPanel bookKey='book-1' onRegisterReset={vi.fn()} />);
     expect(getCustomServicesRow().textContent).toContain('Premium');
     fireEvent.click(getCustomServicesRow());
     expect(state.push).toHaveBeenCalledWith(expect.stringMatching(/^\/auth\?redirect=/));
   });
 
-  it('sends a free user to the plans page', () => {
+  // Personal fork: no accounts or plans.
+
+  it.skip('sends a free user to the plans page', () => {
     state.token = sessionToken({ plan: 'free' });
     state.user = { id: 'u' };
     render(<TTSPanel bookKey='book-1' onRegisterReset={vi.fn()} />);

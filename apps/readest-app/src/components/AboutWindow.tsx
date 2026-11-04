@@ -109,7 +109,7 @@ export const AboutWindow = () => {
   // report (#5285), so tapping the label copies it. The label itself stays
   // localized; the copied string is locale-neutral and names the app first.
   const handleCopyVersion = async () => {
-    const copied = await writeTextToClipboard(`Readest ${getAppVersion()} (${browserInfo})`);
+    const copied = await writeTextToClipboard(`My Book Reader ${getAppVersion()} (${browserInfo})`);
     if (!copied) return;
     eventDispatcher.dispatch('toast', {
       type: 'info',

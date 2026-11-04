@@ -113,6 +113,7 @@ beforeEach(() => {
   useSettingsStore.setState({
     settings: {
       version: 1,
+      readestCloud: { enabled: true },
       webdav: { enabled: false },
       googleDrive: { enabled: false },
     } as SystemSettings,

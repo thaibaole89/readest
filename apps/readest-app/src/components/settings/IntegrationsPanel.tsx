@@ -10,7 +10,6 @@ import {
   RiBookmark3Line,
   RiFileList3Line,
   RiDiscordLine,
-  RiSendPlaneLine,
   RiWifiLine,
   RiCloudLine,
   RiDatabase2Line,
@@ -75,7 +74,7 @@ import {
 import type { FileSyncBackendKind } from '@/services/sync/file/providerRegistry';
 import { canBackendRun } from '@/services/sync/file/runLibrarySync';
 import SubPageHeader from './SubPageHeader';
-import { BoxedList, NavigationRow, SectionTitle, SettingLabel, Tips } from './primitives';
+import { SectionTitle, SettingLabel, Tips } from './primitives';
 
 type SubPage =
   | 'kosync'
@@ -291,11 +290,6 @@ const IntegrationsPanel: React.FC = () => {
                   provider: _('WebDAV'),
                 })}
               </li>
-              <li>
-                {_(
-                  'App settings, reading statistics, and dictionaries still sync through your Readest account while signed in.',
-                )}
-              </li>
             </Tips>
           </div>
         )}
@@ -320,11 +314,6 @@ const IntegrationsPanel: React.FC = () => {
                 {_('{{provider}} keeps a full copy of your books, progress, and annotations.', {
                   provider: _('Google Drive'),
                 })}
-              </li>
-              <li>
-                {_(
-                  'App settings, reading statistics, and dictionaries still sync through your Readest account while signed in.',
-                )}
               </li>
             </Tips>
           </div>
@@ -352,13 +341,7 @@ const IntegrationsPanel: React.FC = () => {
                 })}
               </li>
             }
-            {
-              <li>
-                {_(
-                  'App settings, reading statistics, and dictionaries still sync through your Readest account while signed in.',
-                )}
-              </li>
-            }
+            {}
             {
               <li>
                 {_(
@@ -395,11 +378,6 @@ const IntegrationsPanel: React.FC = () => {
                   provider: _('OneDrive'),
                 })}
               </li>
-              <li>
-                {_(
-                  'App settings, reading statistics, and dictionaries still sync through your Readest account while signed in.',
-                )}
-              </li>
             </Tips>
           </div>
         )}
@@ -425,11 +403,6 @@ const IntegrationsPanel: React.FC = () => {
                   provider: _('iCloud'),
                 })}
               </li>
-              <li>
-                {_(
-                  'App settings, reading statistics, and dictionaries still sync through your Readest account while signed in.',
-                )}
-              </li>
             </Tips>
           </div>
         )}
@@ -444,13 +417,6 @@ const IntegrationsPanel: React.FC = () => {
           description={_('Sync your library, reading progress, and highlights with Readest Cloud.')}
           onBack={() => setSubPage(null)}
         />
-        <BoxedList>
-          <NavigationRow
-            title={_('Account and Storage')}
-            status={_('Manage your plan and stored files')}
-            onClick={() => navigateToProfile(router)}
-          />
-        </BoxedList>
       </div>
     );
   if (subPage === 'readwise')
@@ -812,11 +778,6 @@ const IntegrationsPanel: React.FC = () => {
                   'Library sync is off. Your books, progress, and annotations stay on this device.',
                 )}
               </li>
-              <li>
-                {_(
-                  'App settings, reading statistics, and dictionaries still sync through your Readest account while signed in.',
-                )}
-              </li>
             </Tips>
           </div>
         )}
@@ -837,12 +798,6 @@ const IntegrationsPanel: React.FC = () => {
               title={_('Audiobookshelf')}
               status={absStatus}
               onClick={() => setSubPage('audiobookshelf')}
-            />
-            <IntegrationRow
-              icon={RiSendPlaneLine}
-              title={_('Send to Readest')}
-              status={_('Email books to your library')}
-              onClick={() => setSubPage('send')}
             />
           </div>
         </div>

@@ -117,7 +117,10 @@ describe('BookTTSCacheStore', () => {
   beforeEach(async () => {
     auth.getUserID.mockResolvedValue(null);
     auth.getAccessToken.mockResolvedValue(null);
-    bookConfig.settings = { globalViewSettings: {} } as SystemSettings;
+    bookConfig.settings = {
+      globalViewSettings: {},
+      readestCloud: { enabled: true },
+    } as SystemSettings;
     packState.files.clear();
     db = await NodeDatabaseService.open(':memory:');
     createDir = vi.fn().mockResolvedValue(undefined);

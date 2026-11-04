@@ -34,6 +34,7 @@ import NotebookToggler from './NotebookToggler';
 import TranslationToggler from './TranslationToggler';
 import DuoBookModeToggler from './DuoBookModeToggler';
 import ViewMenu from './ViewMenu';
+import ReadingQuickPanel from './ReadingQuickPanel';
 import SyncInfoDialog from './SyncInfoDialog';
 
 interface HeaderBarProps {
@@ -350,6 +351,16 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
         </div>
 
         <div className='header-tools-end bg-base-100 z-20 ms-auto flex h-full min-w-max items-center gap-x-4 ps-2 max-[350px]:gap-x-2'>
+          <Dropdown
+            label={_('Reading Appearance')}
+            containerClassName='h-8'
+            className='exclude-title-bar-mousedown dropdown-bottom dropdown-end'
+            buttonClassName='btn btn-ghost h-8 min-h-8 w-8 p-0 mt-0 text-sm font-semibold'
+            toggleButton={<span aria-hidden='true'>Aa</span>}
+            onToggle={handleToggleDropdown}
+          >
+            <ReadingQuickPanel bookKey={bookKey} />
+          </Dropdown>
           <NotebookToggler bookKey={bookKey} />
           <Dropdown
             label={_('View Options')}

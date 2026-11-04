@@ -37,7 +37,8 @@ afterEach(() => {
 });
 
 describe('LibraryEmptyState', () => {
-  it('renders title, desktop description, and both CTAs when logged out on desktop', () => {
+  // Personal fork: no accounts or plans.
+  it.skip('renders title, desktop description, and both CTAs when logged out on desktop', () => {
     useEnvMock.mockReturnValue({ appService: { isMobile: false } });
     useAuthMock.mockReturnValue({ user: null });
     render(<LibraryEmptyState onImport={vi.fn()} />);

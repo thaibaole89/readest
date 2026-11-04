@@ -624,9 +624,16 @@ const getPageLayoutStyles = (
   }
 
   /* Now begins really dirty hacks to fix some badly designed epubs */
-  .duokan-footnote-content,
+  /* Personal fork: some converted books wrap body paragraphs as
+     <ol class="duokan-footnote-content"><p>, which is not a note list. */
+  .duokan-footnote-content:not(ol:has(> p)),
   .duokan-footnote-item {
     display: none;
+  }
+
+  ol.duokan-footnote-content:has(> p) {
+    margin: 0;
+    padding: 0;
   }
 
   .duokan-image-gallery-cell {
@@ -810,6 +817,9 @@ const getParagraphLayoutStyles = (
   p.aligned-justify, blockquote.aligned-justify,
   dd.aligned-justify, div.aligned-justify {
     ${!justify && overrideLayout ? 'text-align: initial !important;' : ''};
+  }
+  ol.duokan-footnote-content > p[class*="indent"] {
+    text-indent: 2em !important;
   }
   /* An image that starts a paragraph must not take the indent: sized to the
      column, it would overhang by the indent and paint a strip on the next page

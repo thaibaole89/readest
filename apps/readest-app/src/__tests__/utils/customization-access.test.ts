@@ -92,14 +92,18 @@ describe('isCustomTranslatorAllowed', () => {
     expect(isCustomTranslatorAllowed(mockToken({ customization_purchased: true }))).toBe(true);
   });
 
-  it('denies a free user and a storage-only buyer', () => {
+  // Personal fork: no accounts or plans.
+
+  it.skip('denies a free user and a storage-only buyer', () => {
     expect(isCustomTranslatorAllowed(mockToken({ plan: 'free' }))).toBe(false);
     expect(
       isCustomTranslatorAllowed(mockToken({ plan: 'free', storage_purchased_bytes: 1e9 })),
     ).toBe(false);
   });
 
-  it('denies a signed-out reader', () => {
+  // Personal fork: no accounts or plans.
+
+  it.skip('denies a signed-out reader', () => {
     expect(isCustomTranslatorAllowed(null)).toBe(false);
   });
 

@@ -171,7 +171,8 @@ describe('navigateToReader', () => {
 });
 
 describe('navigateToLogin', () => {
-  test('navigates to /auth with redirect from current path', () => {
+  // Personal fork: no accounts or plans.
+  test.skip('navigates to /auth with redirect from current path', () => {
     Object.defineProperty(window, 'location', {
       value: { pathname: '/library', search: '?q=test' },
       writable: true,
@@ -185,7 +186,9 @@ describe('navigateToLogin', () => {
     expect(url).toContain(encodeURIComponent('/library?q=test'));
   });
 
-  test('uses / as redirect when already on /auth', () => {
+  // Personal fork: no accounts or plans.
+
+  test.skip('uses / as redirect when already on /auth', () => {
     Object.defineProperty(window, 'location', {
       value: { pathname: '/auth', search: '' },
       writable: true,
@@ -200,7 +203,8 @@ describe('navigateToLogin', () => {
 });
 
 describe('navigateToProfile', () => {
-  test('navigates to /user with redirect from current path', () => {
+  // Personal fork: no accounts or plans.
+  test.skip('navigates to /user with redirect from current path', () => {
     Object.defineProperty(window, 'location', {
       value: { pathname: '/reader', search: '?ids=book1' },
       writable: true,

@@ -193,10 +193,8 @@ export const isCustomizationAllowed = (plan: UserPlan, customizationPurchased: b
  * client-side gate, like the TTS cache. It reads the session token directly so
  * a reader window never sees a premium user as free while the plan loads.
  */
-export const isCustomTranslatorAllowed = (token: string | null | undefined): boolean =>
-  token
-    ? isCustomizationAllowed(getUserProfilePlan(token), getCustomizationPurchased(token))
-    : isSelfHosted();
+// Personal fork: there are no plans, and these requests never touch a shared server.
+export const isCustomTranslatorAllowed = (_token: string | null | undefined): boolean => true;
 
 /**
  * Custom TTS services (the user's own OpenAI-compatible speech endpoint) are

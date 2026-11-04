@@ -26,14 +26,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('token');
+      return null;
     }
     return null;
   });
   const [user, setUser] = useState<User | null>(() => {
     if (typeof window !== 'undefined') {
-      const userJson = localStorage.getItem('user');
-      return userJson ? JSON.parse(userJson) : null;
+      return null;
     }
     return null;
   });
@@ -42,7 +41,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const syncSession = (
       session: { access_token: string; refresh_token: string; user: User } | null,
     ) => {
-      if (session) {
+      // Personal fork: no accounts. Any stored session is cleared, never restored.
+      const accountsEnabled = false;
+      if (session && accountsEnabled) {
         console.log('Syncing session');
         const { access_token, refresh_token, user } = session;
         localStorage.setItem('token', access_token);
@@ -59,19 +60,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
       }
     };
-    const refreshSession = async () => {
-      try {
-        await supabase.auth.refreshSession();
-      } catch {
-        syncSession(null);
-      }
-    };
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_, session) => {
       syncSession(session);
     });
 
-    refreshSession();
+    supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+    syncSession(null);
     return () => {
       subscription?.subscription.unsubscribe();
     };

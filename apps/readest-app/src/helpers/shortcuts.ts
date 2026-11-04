@@ -217,12 +217,12 @@ const DEFAULT_SHORTCUTS = {
   },
   onGoUp: {
     keys: ['ArrowUp', 'k'],
-    description: _('Go Up'),
+    description: _('Next Chapter'),
     section: 'Navigation',
   },
   onGoDown: {
     keys: ['ArrowDown', 'j'],
-    description: _('Go Down'),
+    description: _('Previous Chapter'),
     section: 'Navigation',
   },
   onGoNext: {

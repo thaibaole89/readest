@@ -52,7 +52,8 @@ afterEach(() => {
 });
 
 describe('AuthPanel cloud choice vs OAuth redirect', () => {
-  test('holds provider sign-in until the opt-out has been written', async () => {
+  // Personal fork: no accounts or plans.
+  test.skip('holds provider sign-in until the opt-out has been written', async () => {
     const onProviderSignIn = vi.fn(async () => {});
     render(
       <AuthPanel

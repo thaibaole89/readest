@@ -11,6 +11,7 @@ import {
   DEFAULT_BOOK_LANGUAGE,
   DEFAULT_VIEW_CONFIG,
   DEFAULT_READSETTINGS,
+  READING_DEFAULTS_V2,
   SYSTEM_SETTINGS_VERSION,
   DEFAULT_TTS_CONFIG,
   DEFAULT_MOBILE_VIEW_SETTINGS,
@@ -158,6 +159,7 @@ export async function loadSettings(ctx: Context): Promise<SystemSettings> {
   settings.globalViewSettings = {
     ...getDefaultViewSettings(ctx),
     ...settings.globalViewSettings,
+    ...(version < 2 ? READING_DEFAULTS_V2 : {}),
   };
   settings.aiSettings = {
     ...DEFAULT_AI_SETTINGS,

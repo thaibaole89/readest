@@ -23,6 +23,11 @@ import { getScrollGapAttr } from '@/utils/webtoon';
 import { extendSelectionFromContents, KeyModifiers } from '@/utils/sel';
 import { getReadingAreaRect, keyboardTurnDirection } from './useAutoPageTurn';
 import { viewPagination } from './usePagination';
+import {
+  getAdjacentChapterHref,
+  HELD_KEY_PAGE_TURN_MS,
+  isKeyRepeat,
+} from '../utils/keyboardNavigation';
 import useShortcuts from '@/hooks/useShortcuts';
 import { loadShortcuts } from '@/helpers/shortcuts';
 import { matchesShortcut } from '@/utils/shortcutKeys';
@@ -49,6 +54,7 @@ const useBookShortcuts = ({ sideBarBookKey, bookKeys }: UseBookShortcutsProps) =
   const fontSize = viewSettings?.defaultFontSize ?? 16;
   const lineHeight = viewSettings?.lineHeight ?? 1.6;
   const distance = fontSize * lineHeight * 3;
+  const lastPageTurnAt = useRef(0);
 
   const moveReadingRuler = (side: 'left' | 'right' | 'up' | 'down') => {
     if (!sideBarBookKey) return false;
@@ -140,7 +146,26 @@ const useBookShortcuts = ({ sideBarBookKey, bookKeys }: UseBookShortcutsProps) =
     return extended;
   };
 
-  const goLeft = () => {
+  // Holding an arrow fires a repeat every ~30ms; pace it so pages stay readable.
+  const shouldSkipRepeatedTurn = (event?: KeyboardEvent | MessageEvent) => {
+    const now = Date.now();
+    if (isKeyRepeat(event) && now - lastPageTurnAt.current < HELD_KEY_PAGE_TURN_MS) return true;
+    lastPageTurnAt.current = now;
+    return false;
+  };
+
+  const goToAdjacentChapter = (direction: 1 | -1) => {
+    const view = getView(sideBarBookKey);
+    const href = getAdjacentChapterHref(
+      view?.book.toc,
+      view?.lastLocation?.tocItem?.href,
+      direction,
+    );
+    if (href) return view?.goTo(href);
+    return direction > 0 ? goNextSection() : goPrevSection();
+  };
+
+  const goLeft = (event?: KeyboardEvent | MessageEvent) => {
     const viewSettings = getViewSettings(sideBarBookKey ?? '');
     // If paragraph mode is enabled, navigate to previous paragraph instead
     if (viewSettings?.paragraphMode?.enabled && sideBarBookKey) {
@@ -151,10 +176,11 @@ const useBookShortcuts = ({ sideBarBookKey, bookKeys }: UseBookShortcutsProps) =
       return;
     }
     if (moveReadingRuler('left')) return;
+    if (shouldSkipRepeatedTurn(event)) return;
     viewPagination(getView(sideBarBookKey), viewSettings, 'left', 'pan', distance);
   };
 
-  const goRight = () => {
+  const goRight = (event?: KeyboardEvent | MessageEvent) => {
     const viewSettings = getViewSettings(sideBarBookKey ?? '');
     // If paragraph mode is enabled, navigate to next paragraph instead
     if (viewSettings?.paragraphMode?.enabled && sideBarBookKey) {
@@ -165,6 +191,7 @@ const useBookShortcuts = ({ sideBarBookKey, bookKeys }: UseBookShortcutsProps) =
       return;
     }
     if (moveReadingRuler('right')) return;
+    if (shouldSkipRepeatedTurn(event)) return;
     viewPagination(getView(sideBarBookKey), viewSettings, 'right', 'pan', distance);
   };
 
@@ -181,6 +208,11 @@ const useBookShortcuts = ({ sideBarBookKey, bookKeys }: UseBookShortcutsProps) =
     }
     if (moveReadingRuler('up')) return true;
     if (view?.renderer.scrolled && event instanceof MessageEvent) return false;
+    // Personal fork: in paged reflowable books Up is the next chapter, one per press.
+    if (!view?.renderer.scrolled && view?.book.rendition?.layout !== 'pre-paginated') {
+      if (!isKeyRepeat(event)) goToAdjacentChapter(1);
+      return true;
+    }
     viewPagination(view, viewSettings, 'up', 'pan', distance);
     return true;
   };
@@ -198,6 +230,11 @@ const useBookShortcuts = ({ sideBarBookKey, bookKeys }: UseBookShortcutsProps) =
     }
     if (moveReadingRuler('down')) return true;
     if (view?.renderer.scrolled && event instanceof MessageEvent) return false;
+    // Personal fork: in paged reflowable books Down is the previous chapter, one per press.
+    if (!view?.renderer.scrolled && view?.book.rendition?.layout !== 'pre-paginated') {
+      if (!isKeyRepeat(event)) goToAdjacentChapter(-1);
+      return true;
+    }
     viewPagination(view, viewSettings, 'down', 'pan', distance);
     return true;
   };

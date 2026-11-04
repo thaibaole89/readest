@@ -197,7 +197,7 @@ describe('SectionInfo contrast against the page (#4901)', () => {
 
     expect(info.classList.contains('mix-blend-difference')).toBe(false);
     expect(info.classList.contains('text-white/75')).toBe(false);
-    expect(info.classList.contains('text-base-content')).toBe(true);
+    expect(info.classList.contains('text-base-content/45')).toBe(true);
   });
 
   it('does not blend in eink mode (base-content text on the e-ink page)', () => {

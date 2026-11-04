@@ -8,7 +8,6 @@ export type FontFormat = 'ttf' | 'otf' | 'woff' | 'woff2';
 const basicGoogleFonts = [
   { family: 'Bitter', weights: 'ital,wght@0,100..900;1,100..900' },
   { family: 'Fira Code', weights: 'wght@300..700' },
-  { family: 'Literata', weights: 'ital,opsz,wght@0,7..72,200..900;1,7..72,200..900' },
   { family: 'Merriweather', weights: 'ital,opsz,wght@0,18..144,300..900;1,18..144,300..900' },
   { family: 'Noto Sans', weights: 'ital,wght@0,100..900;1,100..900' },
   { family: 'Open Sans', weights: 'ital,wght@0,300..800;1,300..800' },
@@ -27,7 +26,13 @@ const cjkGoogleFonts = [
   { family: 'Noto Serif JP', weights: '' },
 ];
 
+// Fonts with full Vietnamese coverage ship inside the app so reading never
+// depends on the network. The origin is explicit because book iframes are blobs.
+const getBundledFontLink = () =>
+  `<link rel="stylesheet" href="${window.location.origin}/fonts/reading/reading-fonts.css" crossorigin="anonymous">`;
+
 const getAdditionalBasicFontLinks = () => `
+  ${getBundledFontLink()}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?${basicGoogleFonts
     .map(
       ({ family, weights }) =>

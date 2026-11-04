@@ -46,6 +46,7 @@ function makeDeps(
   // opts out of auto-upload. Leaving syncCategories unset mirrors that default.
   const settings = {
     externalLibraryFolders: over.externalLibraryFolders,
+    readestCloud: { enabled: true },
     syncCategories: over.bookSyncEnabled === false ? { book: false } : undefined,
   } as SystemSettings;
   return { appService, settings, isLoggedIn: over.isLoggedIn ?? false, importBook };

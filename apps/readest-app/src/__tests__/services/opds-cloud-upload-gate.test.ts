@@ -30,7 +30,7 @@ const setSettings = (settings: Partial<SystemSettings>) => {
 beforeEach(() => {
   vi.useFakeTimers();
   // Readest Cloud is active by default (no third-party provider enabled).
-  setSettings({});
+  setSettings({ readestCloud: { enabled: true } } as Partial<SystemSettings>);
 });
 
 afterEach(() => {
