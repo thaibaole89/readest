@@ -5,6 +5,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
+import { useEinkMode } from '@/hooks/useEinkMode';
 import { useTranslation } from '@/hooks/useTranslation';
 import { saveViewSettings } from '@/helpers/settings';
 import { getMaxInlineSize } from '@/utils/config';
@@ -76,6 +77,7 @@ const ReadingQuickPanel: React.FC<ReadingQuickPanelProps> = ({
   const { getView, getViewSettings } = useReaderStore();
   const { setSettingsDialogBookKey, setSettingsDialogOpen, setRequestedPanel } = useSettingsStore();
   const { themeMode, themeColor, isDarkMode, setThemeMode, setThemeColor } = useThemeStore();
+  const { applyEinkMode } = useEinkMode();
   const viewSettings = getViewSettings(bookKey);
   if (!viewSettings) return null;
 
@@ -99,6 +101,14 @@ const ReadingQuickPanel: React.FC<ReadingQuickPanelProps> = ({
     const renderer = getView(bookKey)?.renderer;
     renderer?.setAttribute('max-column-count', `${columns}`);
     renderer?.setAttribute('max-inline-size', `${getMaxInlineSize(getViewSettings(bookKey)!)}px`);
+  };
+
+  const handleEinkChange = async (isEink: boolean) => {
+    await saveViewSettings(envConfig, bookKey, 'isEink', isEink);
+    const renderer = getView(bookKey)?.renderer;
+    if (isEink) renderer?.setAttribute('eink', '');
+    else renderer?.removeAttribute('eink');
+    applyEinkMode(isEink);
   };
 
   const openAllSettings = () => {
@@ -256,6 +266,17 @@ const ReadingQuickPanel: React.FC<ReadingQuickPanelProps> = ({
             2
           </button>
         </div>
+      </div>
+
+      <div className='flex items-center justify-between'>
+        <span className='text-sm'>{_('E-Ink Mode')}</span>
+        <input
+          type='checkbox'
+          aria-label={_('E-Ink Mode')}
+          className='toggle toggle-sm'
+          checked={viewSettings.isEink}
+          onChange={(e) => handleEinkChange(e.target.checked)}
+        />
       </div>
 
       <div className='flex items-center justify-between'>

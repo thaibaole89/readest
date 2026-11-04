@@ -975,6 +975,12 @@
     animation: spin-counterclockwise 1s linear;
   }
 
+  /* Paper look on any screen: the whole window, book pages and covers included,
+     so a tinted theme cannot show as a colored frame around a gray page. */
+  html[data-eink='true']:not([data-color-eink='true']) {
+    filter: grayscale(1) contrast(1.15);
+  }
+
   [data-eink='true'] [class*='shadow-'] {
     box-shadow: none !important;
   }
