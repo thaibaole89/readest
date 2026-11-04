@@ -42,7 +42,12 @@ beforeEach(() => {
 describe('resolveCloudSyncGate', () => {
   test('readest is never paused, even when cloud sync is disallowed', () => {
     vi.mocked(isCloudSyncAllowed).mockReturnValue(false);
-    expect(resolveCloudSyncGate(makeSettings(), 'free')).toEqual({
+    expect(
+      resolveCloudSyncGate(
+        makeSettings({ readestCloud: { enabled: true } } as Partial<SystemSettings>),
+        'free',
+      ),
+    ).toEqual({
       readest: true,
       backends: [],
       paused: false,
@@ -129,8 +134,12 @@ describe('applySyncBooksAutoEnable (upgrade migration for already-enabled provid
 });
 
 describe('isReadestCloudStorageActive', () => {
-  test('true when readest is the derived provider', () => {
-    expect(isReadestCloudStorageActive(makeSettings())).toBe(true);
+  test('true when readest is explicitly enabled', () => {
+    expect(
+      isReadestCloudStorageActive(
+        makeSettings({ readestCloud: { enabled: true } } as Partial<SystemSettings>),
+      ),
+    ).toBe(true);
   });
 
   test('false when a third-party provider is selected', () => {
@@ -192,8 +201,8 @@ describe('getEnabledFileSyncBackends', () => {
 });
 
 describe('isReadestCloudEnabled (derived default)', () => {
-  test('absent field with no third-party enabled means Readest Cloud is on', () => {
-    expect(isReadestCloudEnabled(s({}))).toBe(true);
+  test('absent field means Readest Cloud is off (personal fork)', () => {
+    expect(isReadestCloudEnabled(s({}))).toBe(false);
   });
 
   test('absent field with a third-party enabled means Readest Cloud is off (legacy exclusive)', () => {
@@ -214,8 +223,8 @@ describe('isReadestCloudEnabled (derived default)', () => {
 });
 
 describe('getCloudSyncProviders', () => {
-  test('returns readest alone by default', () => {
-    expect(getCloudSyncProviders(s({}))).toEqual(['readest']);
+  test('returns no provider by default', () => {
+    expect(getCloudSyncProviders(s({}))).toEqual([]);
   });
 
   test('returns readest plus every enabled backend in fixed order', () => {

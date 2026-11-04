@@ -138,6 +138,12 @@ describe('useOPDSSubscriptions', () => {
     vi.useFakeTimers();
     try {
       currentUser = { id: 'user-1' };
+      useSettingsStore.setState({
+        settings: {
+          ...useSettingsStore.getState().settings,
+          readestCloud: { enabled: true },
+        } as SystemSettings,
+      });
       useLibraryStore.getState().setLibrary([]);
       const book = makeBook('sub-book');
       mockedSync.mockResolvedValue({ newBooks: [], totalNewBooks: 0, errors: [] });

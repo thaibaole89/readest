@@ -72,11 +72,10 @@ describe('useCloudSyncStatus (issue #5910)', () => {
     expect(result.current.providers.map((p) => p.kind)).toEqual(['webdav']);
   });
 
-  it('still asks for sign-in when Readest Cloud is the only provider', () => {
+  it('never asks for sign-in with no provider selected (personal fork)', () => {
     const { result } = renderHook(() => useCloudSyncStatus(0));
 
-    expect(result.current.needsSignIn).toBe(true);
-    expect(result.current.label).toBe('Sign in to Sync');
+    expect(result.current.needsSignIn).toBe(false);
   });
 
   it('ignores the native stamp when Readest Cloud is switched off', () => {
@@ -204,7 +203,7 @@ describe('useCloudSyncStatus Hardcover (book scope)', () => {
     mockSettings = { hardcover: { enabled: true, autoSync: true, accessToken: 'tok' } } as never;
     const { result } = renderHook(() => useCloudSyncStatus(0, 'book-a'));
 
-    expect(result.current.providers.map((p) => p.kind)).toEqual(['readest', 'hardcover']);
+    expect(result.current.providers.map((p) => p.kind)).toEqual(['hardcover']);
     expect(result.current.needsSignIn).toBe(false);
   });
 });

@@ -141,7 +141,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq" />
+                <data android:scheme="com.googleusercontent.apps.345891989438-dd3nokfc2lt93cb2ds4olq9bmsc5ff2u" />
             </intent-filter>
 
             <!-- OneDrive OAuth redirect. Mirrors the deep-link.mobile scheme in
@@ -206,7 +206,7 @@
                 <action android:name="org.chromium.arc.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq" />
+                <data android:scheme="com.googleusercontent.apps.345891989438-dd3nokfc2lt93cb2ds4olq9bmsc5ff2u" />
                 
                 
                 

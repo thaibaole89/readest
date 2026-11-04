@@ -38,7 +38,7 @@ afterEach(cleanup);
 
 describe('TransferQueuePanel Upload All', () => {
   it('is offered while Readest Cloud and Books sync are on', () => {
-    withSettings();
+    withSettings({ readestCloud: { enabled: true } } as Partial<SystemSettings>);
     render(<TransferQueuePanel />);
     expect(screen.queryByLabelText('Upload All')).not.toBeNull();
   });
@@ -63,7 +63,7 @@ describe('TransferQueuePanel Download All', () => {
   // A library-wide download would otherwise toast "Book downloaded" once per
   // book for the whole run (#6418); the panel itself shows the progress.
   it('queues the downloads in the background', () => {
-    withSettings();
+    withSettings({ readestCloud: { enabled: true } } as Partial<SystemSettings>);
     useLibraryStore.setState({ getVisibleLibrary: () => [cloudOnlyBook] });
     const queueDownload = vi.spyOn(transferManager, 'queueDownload').mockReturnValue('t-1');
 

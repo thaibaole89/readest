@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Readest",
+  "productName": "My Book Reader",
   "mainBinaryName": "readest",
   "identifier": "com.bilingify.readest",
   "version": "../package.json",
@@ -192,7 +192,7 @@
         "rank": "Owner"
       }
     ],
-    "createUpdaterArtifacts": true
+    "createUpdaterArtifacts": false
   },
   "plugins": {
     "fs": {
@@ -239,7 +239,7 @@
           "appLink": false
         },
         {
-          "scheme": ["com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq"],
+          "scheme": ["com.googleusercontent.apps.345891989438-dd3nokfc2lt93cb2ds4olq9bmsc5ff2u"],
           "appLink": false
         }
       ],
@@ -247,7 +247,7 @@
         "schemes": [
           "readest",
           "readest-onedrive",
-          "com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq"
+          "com.googleusercontent.apps.345891989438-dd3nokfc2lt93cb2ds4olq9bmsc5ff2u"
         ]
       }
     },

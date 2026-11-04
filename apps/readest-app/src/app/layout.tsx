@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(url),
   title: {
     default: title,
-    template: '%s | Readest',
+    template: '%s | My Book Reader',
   },
   description,
   generator: 'Next.js',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: 'Readest',
+    title: 'My Book Reader',
     statusBarStyle: 'default',
   },
   openGraph: {

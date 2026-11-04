@@ -279,20 +279,20 @@ describe('browser fullscreen', () => {
 
 describe('formatAppWindowTitle', () => {
   test('names the open book so windows are distinguishable in Alt+Tab', () => {
-    expect(formatAppWindowTitle('The Hobbit')).toBe('Readest - The Hobbit');
+    expect(formatAppWindowTitle('The Hobbit')).toBe('My Book Reader - The Hobbit');
   });
 
   test('falls back to the app name when no book is open', () => {
-    expect(formatAppWindowTitle()).toBe('Readest');
-    expect(formatAppWindowTitle('')).toBe('Readest');
+    expect(formatAppWindowTitle()).toBe('My Book Reader');
+    expect(formatAppWindowTitle('')).toBe('My Book Reader');
   });
 
   test('ignores a blank book title', () => {
-    expect(formatAppWindowTitle('   ')).toBe('Readest');
+    expect(formatAppWindowTitle('   ')).toBe('My Book Reader');
   });
 
   test('trims the book title', () => {
-    expect(formatAppWindowTitle('  The Hobbit \n')).toBe('Readest - The Hobbit');
+    expect(formatAppWindowTitle('  The Hobbit \n')).toBe('My Book Reader - The Hobbit');
   });
 });
 
@@ -310,7 +310,7 @@ describe('tauriSetWindowTitle', () => {
 
     await tauriSetWindowTitle('The Hobbit');
 
-    expect(win.setTitle).toHaveBeenCalledWith('Readest - The Hobbit');
+    expect(win.setTitle).toHaveBeenCalledWith('My Book Reader - The Hobbit');
   });
 
   test('resets to the app name when no book is open', async () => {
@@ -318,7 +318,7 @@ describe('tauriSetWindowTitle', () => {
 
     await tauriSetWindowTitle();
 
-    expect(win.setTitle).toHaveBeenCalledWith('Readest');
+    expect(win.setTitle).toHaveBeenCalledWith('My Book Reader');
   });
 
   test('sets the title natively where the window has traffic lights', async () => {
@@ -333,7 +333,9 @@ describe('tauriSetWindowTitle', () => {
 
     await tauriSetWindowTitle('The Hobbit');
 
-    expect(invoke).toHaveBeenCalledWith('set_window_title', { title: 'Readest - The Hobbit' });
+    expect(invoke).toHaveBeenCalledWith('set_window_title', {
+      title: 'My Book Reader - The Hobbit',
+    });
     expect(win.setTitle).not.toHaveBeenCalled();
   });
 
@@ -343,7 +345,7 @@ describe('tauriSetWindowTitle', () => {
 
     await tauriSetWindowTitle('The Hobbit');
 
-    expect(win.setTitle).toHaveBeenCalledWith('Readest - The Hobbit');
+    expect(win.setTitle).toHaveBeenCalledWith('My Book Reader - The Hobbit');
     expect(invoke).not.toHaveBeenCalled();
   });
 });

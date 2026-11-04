@@ -7,7 +7,7 @@ import { AppService } from '@/types/system';
 import { useTrafficLightStore } from '@/store/trafficLightStore';
 import { eventDispatcher } from './event';
 
-const APP_NAME = 'Readest';
+const APP_NAME = 'My Book Reader';
 
 /**
  * The OS window title, e.g. `Readest - The Hobbit`. It is never drawn in the

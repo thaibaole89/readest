@@ -26,14 +26,14 @@ beforeEach(() => clearSettings());
 afterEach(() => clearSettings());
 
 describe('isSyncCategoryEnabled', () => {
-  test('defaults to true when settings are not loaded yet', () => {
-    expect(isSyncCategoryEnabled('book')).toBe(true);
+  test('book is off and others on before settings load (personal fork)', () => {
+    expect(isSyncCategoryEnabled('book')).toBe(false);
     expect(isSyncCategoryEnabled('dictionary')).toBe(true);
   });
 
-  test('defaults to true when syncCategories map is missing', () => {
+  test('book is off and others on when syncCategories map is missing (personal fork)', () => {
     setSettings({});
-    expect(isSyncCategoryEnabled('book')).toBe(true);
+    expect(isSyncCategoryEnabled('book')).toBe(false);
     expect(isSyncCategoryEnabled('opds_catalog')).toBe(true);
   });
 
@@ -104,14 +104,14 @@ describe('isSyncCategoryEnabled', () => {
       expect(isSyncCategoryEnabled('progress')).toBe(false);
     });
 
-    test('no gating when readest is the provider', () => {
+    test('native categories stay off with no provider selected (personal fork)', () => {
       setSettings({
         webdav: { enabled: false },
         googleDrive: { enabled: false },
       } as Partial<SystemSettings>);
-      expect(isSyncCategoryEnabled('book')).toBe(true);
-      expect(isSyncCategoryEnabled('progress')).toBe(true);
-      expect(isSyncCategoryEnabled('note')).toBe(true);
+      expect(isSyncCategoryEnabled('book')).toBe(false);
+      expect(isSyncCategoryEnabled('progress')).toBe(false);
+      expect(isSyncCategoryEnabled('note')).toBe(false);
     });
   });
 
