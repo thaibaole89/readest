@@ -17,6 +17,7 @@ import {
   normalizeFilePathForIndex,
   selectNewImportableFiles,
   toWatchedFolderImports,
+  type ScannedFileEntry,
 } from '@/services/bookService';
 import { debounce } from '@/utils/debounce';
 import { createSerialRunner, runWithConcurrency } from '@/utils/concurrency';
@@ -79,6 +80,7 @@ import { useClipUrlIngress } from '@/hooks/useClipUrlIngress';
 import { useWebBrowserDownloads } from '@/hooks/useWebBrowserDownloads';
 import { useKeyDownActions } from '@/hooks/useKeyDownActions';
 import { SelectedFile, resolveTauriFileName, useFileSelector } from '@/hooks/useFileSelector';
+import { homeDir } from '@tauri-apps/api/path';
 import { lockScreenOrientation, selectDirectory, showFilePicker } from '@/utils/bridge';
 import { useAndroidPickedBooks } from '@/hooks/useAndroidFilePicker';
 import { requestStoragePermission } from '@/utils/permission';
@@ -119,6 +121,8 @@ import Bookshelf from './components/Bookshelf';
 import ImportMenuPopup from './components/ImportMenuPopup';
 import GroupHeader from './components/GroupHeader';
 import FailedImportsDialog, { FailedImport } from './components/FailedImportsDialog';
+import { findNewBooks, identifyBookFile, type ScanOutcome } from '@/services/libraryScan';
+import ScanResultsDialog from './components/ScanResultsDialog';
 import ImportFromFolderDialog, {
   ImportFromFolderResult,
 } from './components/ImportFromFolderDialog';
@@ -302,6 +306,12 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
   // than a boolean because we need a default starting directory to seed
   // the path field, and we want the dialog to remain mounted long
   // enough for the platform's folder picker to overlay it.
+  const [scanReview, setScanReview] = useState<{
+    outcome: ScanOutcome;
+    entries: ScannedFileEntry[];
+    directory: string;
+    flatten: boolean;
+  } | null>(null);
   const [importFromFolderState, setImportFromFolderState] = useState<{
     initialDirectory: string;
     initialFolderMode: 'keep' | 'flatten';
@@ -1487,6 +1497,20 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
     });
   };
 
+  // Opens the folder dialog on the home folder, set up to gather EPUBs from
+  // everywhere into the library root; the user still reviews it and confirms.
+  const handleScanComputerForBooks = async () => {
+    setIsSelectMode(false);
+    setImportFromFolderState({
+      initialDirectory: await homeDir(),
+      initialFolderMode: 'flatten',
+      initialSelectedGroupIds: ['epub'],
+      initialMinSizeKB: undefined,
+      initialReadInPlace: false,
+      initialAutoImport: false,
+    });
+  };
+
   /**
    * Pop the platform's native folder picker. Wrapped here (rather than
    * inlined into the dialog) so the same Android-permission / Tauri
@@ -1752,7 +1776,10 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
    *               actually reseats them. Dropping basePath in flatten
    *               mode is therefore belt-and-suspenders.
    */
-  const runFolderImport = async (result: ImportFromFolderResult) => {
+  const runFolderImport = async (
+    result: ImportFromFolderResult,
+    { reviewNewBooks = false }: { reviewNewBooks?: boolean } = {},
+  ) => {
     if (!appService || !result.directory) return;
     // Last-chance sanity check. The dialog's own pickImportDirectory
     // already validates fresh picks, but `result.directory` can also
@@ -1848,6 +1875,28 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
         type: 'info',
         message: _('No matching books found in the selected folder.'),
       });
+      return;
+    }
+    if (reviewNewBooks) {
+      setLoading(true);
+      try {
+        const outcome = await findNewBooks(
+          entries,
+          useLibraryStore.getState().library,
+          (path) => identifyBookFile(appService, path),
+          { osPlatform: appService.osPlatform },
+        );
+        if (outcome.candidates.length === 0) {
+          eventDispatcher.dispatch('toast', {
+            type: 'info',
+            message: _('No new books found. Everything here is already in your library.'),
+          });
+          return;
+        }
+        setScanReview({ outcome, entries, directory: result.directory, flatten: result.flatten });
+      } finally {
+        setLoading(false);
+      }
       return;
     }
     // When flattening, route the books into whichever group the user
@@ -2003,6 +2052,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
           onImportBooksFromDirectory={
             appService?.canReadExternalDir ? handleImportBooksFromDirectory : undefined
           }
+          onScanComputerForBooks={appService?.isDesktopApp ? handleScanComputerForBooks : undefined}
           onImportFromWebBrowser={isTauriAppPlatform() ? () => setShowWebSources(true) : undefined}
           onImportBookFromNovelUrl={
             isTauriAppPlatform() ? () => setShowImportNovel(true) : undefined
@@ -2138,6 +2188,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
           onImportBooksFromDirectory={
             appService?.canReadExternalDir ? handleImportBooksFromDirectory : undefined
           }
+          onScanComputerForBooks={appService?.isDesktopApp ? handleScanComputerForBooks : undefined}
           onImportFromWebBrowser={isTauriAppPlatform() ? () => setShowWebSources(true) : undefined}
           onImportBookFromNovelUrl={
             isTauriAppPlatform() ? () => setShowImportNovel(true) : undefined
@@ -2196,6 +2247,22 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
           onClose={() => setFailedImportsModal(null)}
         />
       )}
+      {scanReview && (
+        <ScanResultsDialog
+          outcome={scanReview.outcome}
+          onCancel={() => setScanReview(null)}
+          onConfirm={(paths) => {
+            const { entries, directory, flatten } = scanReview;
+            setScanReview(null);
+            const chosenPaths = new Set(paths);
+            const chosen = entries.filter(({ fullPath }) => chosenPaths.has(fullPath));
+            importBooks(
+              toWatchedFolderImports(directory, chosen, flatten),
+              flatten ? searchParams?.get('group') || '' : undefined,
+            );
+          }}
+        />
+      )}
       {importFromFolderState && (
         <ImportFromFolderDialog
           initialDirectory={importFromFolderState.initialDirectory}
@@ -2241,7 +2308,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
                 result.readInPlace ? '1' : '0',
               );
             }
-            void runFolderImport(result);
+            void runFolderImport(result, { reviewNewBooks: true });
           }}
         />
       )}

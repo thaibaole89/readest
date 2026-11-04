@@ -1,5 +1,12 @@
 import clsx from 'clsx';
-import { MdContentPaste, MdLanguage, MdMenuBook, MdRssFeed } from 'react-icons/md';
+import {
+  MdComputer,
+  MdContentPaste,
+  MdFolderOpen,
+  MdLanguage,
+  MdMenuBook,
+  MdRssFeed,
+} from 'react-icons/md';
 import { LuLibrary } from 'react-icons/lu';
 import { IoFileTray } from 'react-icons/io5';
 import { useEnv } from '@/context/EnvContext';
@@ -13,6 +20,7 @@ export interface ImportMenuProps {
   onImportBooksFromFiles: () => void;
   onImportPastedText?: () => void;
   onImportBooksFromDirectory?: () => void;
+  onScanComputerForBooks?: () => void;
   onImportFromWebBrowser?: () => void;
   onImportBookFromNovelUrl?: () => void;
   onOpenCatalogManager: () => void;
@@ -25,6 +33,7 @@ const ImportMenu: React.FC<ImportMenuProps> = ({
   onImportBooksFromFiles,
   onImportPastedText,
   onImportBooksFromDirectory,
+  onScanComputerForBooks,
   onImportFromWebBrowser,
   onImportBookFromNovelUrl,
   onOpenCatalogManager,
@@ -45,6 +54,11 @@ const ImportMenu: React.FC<ImportMenuProps> = ({
 
   const handleImportFromDirectory = () => {
     onImportBooksFromDirectory?.();
+    setIsDropdownOpen?.(false);
+  };
+
+  const handleScanComputer = () => {
+    onScanComputerForBooks?.();
     setIsDropdownOpen?.(false);
   };
 
@@ -83,9 +97,16 @@ const ImportMenu: React.FC<ImportMenuProps> = ({
       />
       {onImportBooksFromDirectory && (
         <MenuItem
-          label={_('From Directory')}
-          Icon={<IoFileTray className='h-5 w-5' />}
+          label={_('Scan a Folder')}
+          Icon={<MdFolderOpen className='h-5 w-5' />}
           onClick={handleImportFromDirectory}
+        />
+      )}
+      {onScanComputerForBooks && (
+        <MenuItem
+          label={_('Scan This Computer')}
+          Icon={<MdComputer className='h-5 w-5' />}
+          onClick={handleScanComputer}
         />
       )}
       {onImportPastedText && (

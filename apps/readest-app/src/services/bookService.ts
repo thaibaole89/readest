@@ -62,7 +62,7 @@ import {
  * document and kept across revisions, so it is what tells two FB2s of the
  * same title apart (issue #7150).
  */
-function hasVolatileIdentifiers(format: Book['format']) {
+export function hasVolatileIdentifiers(format: Book['format']) {
   return format !== 'PDF' && format !== 'FB2' && format !== 'FBZ';
 }
 

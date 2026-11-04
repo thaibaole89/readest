@@ -43,7 +43,15 @@ fn read_dir_sync(
         extensions.iter().map(|ext| ext.to_lowercase()).collect();
 
     if recursive {
-        for entry_result in WalkDir::new(path).into_iter() {
+        let is_home_root = ["HOME", "USERPROFILE"]
+            .iter()
+            .filter_map(std::env::var_os)
+            .any(|home| Path::new(&home) == path_buf);
+        let walker = WalkDir::new(path).into_iter().filter_entry(|entry| {
+            !(entry.file_type().is_dir()
+                && should_skip_dir(entry.file_name(), entry.depth(), is_home_root))
+        });
+        for entry_result in walker {
             match entry_result {
                 Ok(entry) => {
                     if entry.file_type().is_file() {
@@ -100,6 +108,18 @@ fn read_dir_sync(
     Ok(files)
 }
 
+// A scan of a whole home folder must not walk app data: it holds this library's
+// own copies and on-demand cloud drives, and is far larger than the user's files.
+fn should_skip_dir(name: &std::ffi::OsStr, depth: usize, is_home_root: bool) -> bool {
+    if depth == 0 {
+        return false;
+    }
+    let name = name.to_string_lossy();
+    name.starts_with('.')
+        || name == "node_modules"
+        || (is_home_root && depth == 1 && (name == "Library" || name == "AppData"))
+}
+
 fn process_file_entry(path: &Path, extensions: &[String]) -> Option<ScannedFile> {
     if extensions.is_empty() || extensions.contains(&"*".to_string()) {
         let size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
@@ -123,6 +143,21 @@ fn process_file_entry(path: &Path, extensions: &[String]) -> Option<ScannedFile>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn scan_skips_hidden_and_app_data_dirs_only_where_they_apply() {
+        let skip =
+            |name: &str, depth, home| should_skip_dir(std::ffi::OsStr::new(name), depth, home);
+        assert!(skip(".Trash", 1, false));
+        assert!(skip("node_modules", 3, false));
+        assert!(skip("Library", 1, true));
+        // A folder of books that happens to be called Library is still scanned.
+        assert!(!skip("Library", 1, false));
+        assert!(!skip("Library", 2, true));
+        assert!(!skip("Downloads", 1, true));
+        // The root the user chose is always walked.
+        assert!(!skip(".hidden-root", 0, false));
+    }
 
     #[test]
     fn scan_preserves_requested_root_spelling() {

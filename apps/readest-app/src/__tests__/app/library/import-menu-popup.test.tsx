@@ -40,13 +40,26 @@ afterEach(() => {
 });
 
 describe('ImportMenuPopup', () => {
+  it('offers a computer-wide scan only when the caller provides one', () => {
+    const onScanComputerForBooks = vi.fn();
+    const { onClose } = renderPopup({ onScanComputerForBooks });
+
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Scan This Computer' }));
+
+    expect(onScanComputerForBooks).toHaveBeenCalledOnce();
+    expect(onClose).toHaveBeenCalled();
+    cleanup();
+    renderPopup();
+    expect(screen.queryByRole('menuitem', { name: 'Scan This Computer' })).toBeNull();
+  });
+
   it('shows the same always-available options as the library header menu', () => {
     renderPopup();
 
     expect(screen.getByRole('menuitem', { name: 'From Local File' })).toBeTruthy();
     expect(screen.getByRole('menuitem', { name: 'From Feed URL' })).toBeTruthy();
     expect(screen.getByRole('menuitem', { name: 'Online Library' })).toBeTruthy();
-    expect(screen.queryByRole('menuitem', { name: 'From Directory' })).toBeNull();
+    expect(screen.queryByRole('menuitem', { name: 'Scan a Folder' })).toBeNull();
     expect(screen.queryByRole('menuitem', { name: 'From Web Browser' })).toBeNull();
   });
 
@@ -55,7 +68,7 @@ describe('ImportMenuPopup', () => {
     const onImportFromWebBrowser = vi.fn();
     const { onClose } = renderPopup({ onImportBooksFromDirectory, onImportFromWebBrowser });
 
-    fireEvent.click(screen.getByRole('menuitem', { name: 'From Directory' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Scan a Folder' }));
     expect(onImportBooksFromDirectory).toHaveBeenCalledTimes(1);
 
     fireEvent.click(screen.getByRole('menuitem', { name: 'From Web Browser' }));
