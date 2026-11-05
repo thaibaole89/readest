@@ -6,6 +6,7 @@ import {
   CJK_SANS_SERIF_FONTS,
   CJK_SERIF_FONTS,
 } from '@/services/constants';
+import tinycolor from 'tinycolor2';
 import { BookFormat, FIXED_LAYOUT_FORMATS, ViewSettings } from '@/types/book';
 import {
   themes,
@@ -285,6 +286,8 @@ const getDarkSelectionStyles = (primary: string) => `
     }
   `;
 
+const MIN_DIALOGUE_TEXT_CONTRAST = 4.5;
+
 const getDialogueHighlightStyles = (viewSettings: ViewSettings, themeCode: ThemeCode) => {
   // Background and text are independent switches; off means the default
   // (theme primary tint for the background, inherited text). An empty stored
@@ -298,8 +301,13 @@ const getDialogueHighlightStyles = (viewSettings: ViewSettings, themeCode: Theme
     bgBase
       ? `\n    background-color: color-mix(in srgb, ${bgBase} ${percent}%, transparent) !important;`
       : '';
+  // A color picked on one theme must not vanish on another: dark gray dialogue
+  // on a dark page reads as missing text, so fall back to the theme's color.
   const text =
-    viewSettings.dialogueHighlightCustomTextColor && viewSettings.dialogueHighlightTextColor
+    viewSettings.dialogueHighlightCustomTextColor &&
+    viewSettings.dialogueHighlightTextColor &&
+    tinycolor.readability(viewSettings.dialogueHighlightTextColor, themeCode.bg) >=
+      MIN_DIALOGUE_TEXT_CONTRAST
       ? `\n    color: ${viewSettings.dialogueHighlightTextColor} !important;`
       : '';
   // A thin outline works even when the font has only regular/bold faces.
@@ -372,6 +380,12 @@ const getColorStyles = (
     }
     ${texturedFootnote && !overrideColor ? 'html' : 'html, body'} {
       color: ${fg};
+    }
+    /* Light pages read in black and dark pages in white, whatever color the
+       book hardcoded. :where() leaves links and the app's own marks on top. */
+    :where(div, p, font, h1, h2, h3, h4, h5, h6, li, dt, dd, td, th, span, blockquote,
+      section, article, aside, b, strong, i, em, u, small, cite, q) {
+      color: ${fg} !important;
     }
     ${isEink ? getEinkSelectionStyles() : isDarkMode ? getDarkSelectionStyles(primary) : ''}
     html[has-background], body[has-background] {
@@ -785,7 +799,7 @@ const getParagraphLayoutStyles = (
      this whole rule and reverts to the book's default line spacing, indent and
      hyphenation. */
   p, blockquote, dd, div:not(:has(*:not(${INLINE_FORMATTING_SELECTOR}))) {
-    line-height: ${lineSpacing} ${overrideLayout ? '!important' : ''};
+    line-height: ${lineSpacing} !important;
     word-spacing: ${wordSpacing}px ${overrideLayout ? '!important' : ''};
     letter-spacing: ${letterSpacing}px ${overrideLayout ? '!important' : ''};
     text-indent: ${textIndent}em ${overrideLayout ? '!important' : ''};
@@ -798,7 +812,7 @@ const getParagraphLayoutStyles = (
     widows: 2;
   }
   li {
-    line-height: ${lineSpacing} ${overrideLayout ? '!important' : ''};
+    line-height: ${lineSpacing} !important;
     -webkit-hyphens: ${hyphenate ? 'auto' : 'manual'} ${overrideLayout ? '!important' : ''};
     hyphens: ${hyphenate ? 'auto' : 'manual'} ${overrideLayout ? '!important' : ''};
   }
@@ -818,8 +832,9 @@ const getParagraphLayoutStyles = (
   dd.aligned-justify, div.aligned-justify {
     ${!justify && overrideLayout ? 'text-align: initial !important;' : ''};
   }
-  ol.duokan-footnote-content > p[class*="indent"] {
-    text-indent: 2em !important;
+  ol.duokan-footnote-content > p[class*="indent"], p[class*="first_indent"] {
+    text-indent: 1.2em !important;
+    margin-block: ${paragraphMargin}em !important;
   }
   /* An image that starts a paragraph must not take the indent: sized to the
      column, it would overhang by the indent and paint a strip on the next page

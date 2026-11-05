@@ -142,6 +142,30 @@ const _ = (stubKey: string) => stubKey;
 
 export const themes = [
   {
+    name: 'book-paper',
+    label: _('Paper'),
+    colors: {
+      light: generateLightPalette({ fg: '#000000', bg: '#f7f4ec', primary: '#4488cc' }),
+      dark: generateDarkPalette({ fg: '#ffffff', bg: '#222222', primary: '#88ccee' }),
+    },
+  },
+  {
+    name: 'book-sepia',
+    label: _('Sepia'),
+    colors: {
+      light: generateLightPalette({ fg: '#000000', bg: '#f2dfb1', primary: '#008b8b' }),
+      dark: generateDarkPalette({ fg: '#ffffff', bg: '#342e25', primary: '#48d1cc' }),
+    },
+  },
+  {
+    name: 'book-gray',
+    label: _('Dark Gray'),
+    colors: {
+      light: generateLightPalette({ fg: '#000000', bg: '#e0e0e0', primary: '#4488cc' }),
+      dark: generateDarkPalette({ fg: '#ffffff', bg: '#3b3b3b', primary: '#88ccee' }),
+    },
+  },
+  {
     name: 'default',
     label: _('Default'),
     colors: {

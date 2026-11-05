@@ -85,6 +85,8 @@ export interface CapturedTurnHost {
   getColumnCount?: () => number;
   /** Page Flip is the chosen style: a single page lifts over the spine instead of curling. */
   isPageFlip?: () => boolean;
+  /** How many times longer than the original animation a turn takes. */
+  getTurnDurationScale?: () => number;
   /**
    * Freeze the on-screen pixels of `rect` (viewport CSS px) behind a native
    * layer that `capture` does not see. The two-column curl uses it to capture
@@ -1468,7 +1470,8 @@ export class CapturedPageTurn {
         ? Math.max(0, Math.min(1, (Math.abs(releaseVelocity) - minSpeed) / speedRange))
         : 0;
       const playbackRate = 1 + (maxPlaybackRate - 1) * releaseBoost;
-      const baseDuration = Math.max(1, this.#duration * Math.abs(span));
+      const scale = this.#host.getTurnDurationScale?.() ?? 1;
+      const baseDuration = Math.max(1, this.#duration * scale * Math.abs(span));
       const duration =
         releaseBoost > 0
           ? Math.max(Math.min(MIN_BOOSTED_SETTLE_MS, baseDuration), baseDuration / playbackRate)
@@ -1559,9 +1562,13 @@ export class CapturedPageTurn {
     return new Promise((resolve) => {
       active.finish = resolve;
       let last = 0;
+      const scale = this.#host.getTurnDurationScale?.() ?? 1;
       const step = (now: number) => {
         if (this.#active !== active) return resolve();
-        const moving = active.renderer.advance!(last ? (now - last) / 1000 : 0, active.rendererRtl);
+        const moving = active.renderer.advance!(
+          last ? (now - last) / 1000 / scale : 0,
+          active.rendererRtl,
+        );
         last = now;
         if (moving) {
           active.raf = requestAnimationFrame(step);

@@ -7,6 +7,7 @@ import {
   BookStyle,
   HighlightColor,
   NoteExportConfig,
+  PageTurnSpeed,
   ParagraphModeConfig,
   ReadingRulerColor,
   ScreenConfig,
@@ -411,7 +412,7 @@ export const DEFAULT_BOOK_LANGUAGE: BookLanguage = {
 export const DEFAULT_BOOK_STYLE: BookStyle = {
   zoomLevel: 100,
   paragraphMargin: 0.6,
-  lineHeight: 1.5,
+  lineHeight: 1.6,
   wordSpacing: 0,
   letterSpacing: 0,
   textIndent: 0,
@@ -509,8 +510,9 @@ export const DEFAULT_VIEW_CONFIG: ViewConfig = {
   headerFooterBackground: 'auto',
   headerFooterBgOpacity: 0.85,
 
-  animated: false,
-  pageTurnStyle: 'push',
+  animated: true,
+  pageTurnStyle: 'flip',
+  pageTurnSpeed: 'normal',
   isEink: false,
   isColorEink: false,
   einkAutoRefreshInterval: 0,
@@ -613,7 +615,28 @@ export const DEFAULT_VIEW_SETTINGS_CONFIG: ViewSettingsConfig = {
   isGlobal: true,
 };
 
-export const SYSTEM_SETTINGS_VERSION = 2;
+export const SYSTEM_SETTINGS_VERSION = 4;
+
+// Personal fork: applied once to settings saved before the Lithium-style spacing.
+export const READING_DEFAULTS_V4 = {
+  lineHeight: 1.6,
+  paragraphMargin: 0.6,
+  pageTurnSpeed: 'normal',
+  dialogueHighlightCustomTextColor: false,
+} as const;
+
+// How much longer a turn takes than the original animation.
+export const PAGE_TURN_SPEED_SCALE: Record<PageTurnSpeed, number> = {
+  fast: 1,
+  normal: 1.6,
+  slow: 2.5,
+};
+
+// Personal fork: applied once to settings saved before pages turned like a real book.
+export const READING_DEFAULTS_V3 = {
+  animated: true,
+  pageTurnStyle: 'flip',
+} as const;
 
 // Personal fork: applied once to settings saved before the Books-style reading defaults.
 export const READING_DEFAULTS_V2 = {
@@ -632,6 +655,7 @@ export const READING_DEFAULTS_V2 = {
 
 export const SERIF_FONTS = [
   'Literata',
+  'Domine',
   'Source Serif 4',
   'Noto Serif',
   'Bitter',

@@ -36,7 +36,7 @@ class NativePaperArgs {
     var x = 0f; var y = 0f; var width = 0f; var height = 0f
     var forward = true; var rtl = false
     var progress = 0f; var grabY = 0.5f
-    var commit = false; var velocity = 0f
+    var commit = false; var velocity = 0f; var durationScale = 1f
     var columns = 1
     var flip = false
 }
@@ -434,7 +434,8 @@ internal class NativePaperTurn(private val activity: Activity, private val webVi
         val from = progress
         val span = abs(animationTarget - from)
         val duration = maxOf(100f, minOf(240f, if (abs(args.velocity) > 0.3f)
-            span * width / (abs(args.velocity) * webView.resources.displayMetrics.density) else 240f * span))
+            span * width / (abs(args.velocity) * webView.resources.displayMetrics.density) else 240f * span)) *
+            args.durationScale.coerceAtLeast(1f)
         if (span < 0.001f) { completeAnimation(); return }
         var last = 0L
         var elapsed = 0f
@@ -473,6 +474,7 @@ internal class NativePaperTurn(private val activity: Activity, private val webVi
         animationTarget = if (commit) 1f else 0f
         flip.release(commit, seconds())
         pushFlip()
+        val timeScale = args.durationScale.coerceAtLeast(1f)
         // A turned page leaves over the spine, and a cancelled backward sheet
         // returns there: stop once nothing of it is left on the page. A
         // backward sheet arrives from there: skip the poses before it shows.
@@ -487,7 +489,7 @@ internal class NativePaperTurn(private val activity: Activity, private val webVi
                 if (last != 0L) {
                     val dt = (now - last) / 1e9
                     // A following gesture hurries the tail rather than cutting it.
-                    moving = flip.advance(if (completeRequested) dt * 2 else dt)
+                    moving = flip.advance(if (completeRequested) dt * 2 else dt / timeScale)
                     pushFlip()
                 }
                 last = now

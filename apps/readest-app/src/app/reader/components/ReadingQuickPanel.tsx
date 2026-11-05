@@ -5,11 +5,14 @@ import { useEnv } from '@/context/EnvContext';
 import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
+import { useBookDataStore } from '@/store/bookDataStore';
+import { applyPageTurnAttributes } from '@/app/reader/hooks/useCapturedTurn';
 import { useEinkMode } from '@/hooks/useEinkMode';
 import { useTranslation } from '@/hooks/useTranslation';
 import { saveViewSettings } from '@/helpers/settings';
 import { getMaxInlineSize } from '@/utils/config';
 import { themes } from '@/styles/themes';
+import type { PageTurnSpeed, PageTurnStyle } from '@/types/book';
 
 const FONT_SIZE = { MIN: 12, MAX: 48, STEP: 1 };
 const LINE_HEIGHT = { MIN: 1.1, MAX: 2.2, STEP: 0.1 };
@@ -17,9 +20,34 @@ const PAGE_GAP = { MIN: 2, MAX: 15, STEP: 1 };
 
 const READING_FONTS = [
   { family: 'Literata', kind: 'Serif' },
+  { family: 'Domine', kind: 'Serif' },
   { family: 'Source Serif 4', kind: 'Serif' },
   { family: 'Noto Serif', kind: 'Serif' },
   { family: 'Be Vietnam Pro', kind: 'Sans-serif' },
+] as const;
+
+type PageTurnChoice = PageTurnStyle | 'off';
+
+const PAGE_TURNS: { value: PageTurnChoice; label: string }[] = [
+  { value: 'off', label: 'Off' },
+  { value: 'slide', label: 'Slide' },
+  { value: 'curl', label: 'Curl' },
+  { value: 'flip', label: 'Flip' },
+];
+
+const PAGE_TURN_SPEEDS: { value: PageTurnSpeed; label: string }[] = [
+  { value: 'fast', label: 'Fast' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'slow', label: 'Slow' },
+];
+
+// Light pages read in black, dark pages in white.
+const READING_THEMES = [
+  { name: 'contrast', isDark: false, label: 'White' },
+  { name: 'book-paper', isDark: false, label: 'Paper' },
+  { name: 'book-sepia', isDark: false, label: 'Sepia' },
+  { name: 'book-gray', isDark: true, label: 'Dark Gray' },
+  { name: 'contrast', isDark: true, label: 'Black' },
 ] as const;
 
 const clamp = (value: number, { MIN, MAX }: { MIN: number; MAX: number }) =>
@@ -76,14 +104,18 @@ const ReadingQuickPanel: React.FC<ReadingQuickPanelProps> = ({
   const { envConfig } = useEnv();
   const { getView, getViewSettings } = useReaderStore();
   const { setSettingsDialogBookKey, setSettingsDialogOpen, setRequestedPanel } = useSettingsStore();
-  const { themeMode, themeColor, isDarkMode, setThemeMode, setThemeColor } = useThemeStore();
+  const { themeColor, isDarkMode, setThemeMode, setThemeColor } = useThemeStore();
   const { applyEinkMode } = useEinkMode();
+  const getBookData = useBookDataStore((s) => s.getBookData);
   const viewSettings = getViewSettings(bookKey);
   if (!viewSettings) return null;
 
   const currentFont =
     viewSettings.defaultFont === 'Serif' ? viewSettings.serifFont : viewSettings.sansSerifFont;
   const currentColumns = viewSettings.maxColumnCount === 1 ? 1 : 2;
+  const currentPageTurn: PageTurnChoice = viewSettings.animated
+    ? viewSettings.pageTurnStyle
+    : 'off';
 
   const handleFontChange = async (font: (typeof READING_FONTS)[number]) => {
     const fontKey = font.kind === 'Serif' ? 'serifFont' : 'sansSerifFont';
@@ -103,12 +135,43 @@ const ReadingQuickPanel: React.FC<ReadingQuickPanelProps> = ({
     renderer?.setAttribute('max-inline-size', `${getMaxInlineSize(getViewSettings(bookKey)!)}px`);
   };
 
+  const applyTurnAttributes = () => {
+    const view = getView(bookKey);
+    const latest = getViewSettings(bookKey);
+    if (!view || !latest) return;
+    applyPageTurnAttributes(view, latest, !!getBookData(bookKey)?.isFixedLayout);
+  };
+
   const handleEinkChange = async (isEink: boolean) => {
     await saveViewSettings(envConfig, bookKey, 'isEink', isEink);
     const renderer = getView(bookKey)?.renderer;
     if (isEink) renderer?.setAttribute('eink', '');
     else renderer?.removeAttribute('eink');
     applyEinkMode(isEink);
+    // E-ink has no captured turns, so the renderer's turn mode changes with it.
+    applyTurnAttributes();
+  };
+
+  const handlePageTurnChange = async (choice: PageTurnChoice) => {
+    const animated = choice !== 'off';
+    await saveViewSettings(envConfig, bookKey, 'animated', animated, false, false);
+    if (choice !== 'off') {
+      await saveViewSettings(envConfig, bookKey, 'pageTurnStyle', choice, false, false);
+    }
+    const renderer = getView(bookKey)?.renderer;
+    if (animated) renderer?.setAttribute('animated', '');
+    else renderer?.removeAttribute('animated');
+    applyTurnAttributes();
+  };
+
+  const handleThemeChange = (name: string, isDark: boolean) => {
+    setThemeColor(name);
+    setThemeMode(isDark ? 'dark' : 'light');
+  };
+
+  const handlePageTurnSpeedChange = async (speed: PageTurnSpeed) => {
+    await saveViewSettings(envConfig, bookKey, 'pageTurnSpeed', speed, false, false);
+    applyTurnAttributes();
   };
 
   const openAllSettings = () => {
@@ -128,55 +191,36 @@ const ReadingQuickPanel: React.FC<ReadingQuickPanelProps> = ({
     <div
       className={clsx(
         'dropdown-content no-triangle bg-base-100 border-base-300 z-20 mt-2 flex w-80 max-w-[90vw]',
-        'flex-col gap-3 rounded-2xl border p-4 shadow-2xl',
+        'max-h-[calc(100vh-5rem)] flex-col gap-3 overflow-y-auto rounded-2xl border p-4 shadow-2xl',
         menuClassName,
       )}
     >
       <div className='flex gap-2' role='group' aria-label={_('Theme')}>
-        {themes.slice(0, 6).map(({ name, label, colors }) => (
-          <button
-            key={name}
-            type='button'
-            title={_(label)}
-            aria-label={_(label)}
-            aria-pressed={themeColor === name}
-            onClick={() => setThemeColor(name)}
-            className={clsx(
-              'border-base-300 h-9 flex-1 rounded-full border text-xs',
-              themeColor === name && 'ring-primary ring-2 ring-offset-1',
-            )}
-            style={{
-              backgroundColor: isDarkMode ? colors.dark['base-100'] : colors.light['base-100'],
-              color: isDarkMode ? colors.dark['base-content'] : colors.light['base-content'],
-            }}
-          >
-            Aa
-          </button>
-        ))}
-      </div>
-
-      <div className='flex gap-1' role='group' aria-label={_('Theme Mode')}>
-        <button
-          type='button'
-          className={pillClass(themeMode === 'light')}
-          onClick={() => setThemeMode('light')}
-        >
-          {_('Light')}
-        </button>
-        <button
-          type='button'
-          className={pillClass(themeMode === 'dark')}
-          onClick={() => setThemeMode('dark')}
-        >
-          {_('Dark')}
-        </button>
-        <button
-          type='button'
-          className={pillClass(themeMode === 'auto')}
-          onClick={() => setThemeMode('auto')}
-        >
-          {_('Auto')}
-        </button>
+        {READING_THEMES.map(({ name, isDark, label }) => {
+          const palette = themes.find((theme) => theme.name === name)?.colors;
+          const colors = isDark ? palette?.dark : palette?.light;
+          const isActive = themeColor === name && isDarkMode === isDark;
+          return (
+            <button
+              key={label}
+              type='button'
+              title={_(label)}
+              aria-label={_(label)}
+              aria-pressed={isActive}
+              onClick={() => handleThemeChange(name, isDark)}
+              className={clsx(
+                'border-base-300 h-9 flex-1 rounded-full border text-xs',
+                isActive && 'ring-primary ring-2 ring-offset-1',
+              )}
+              style={{
+                backgroundColor: colors?.['base-100'],
+                color: colors?.['base-content'],
+              }}
+            >
+              Aa
+            </button>
+          );
+        })}
       </div>
 
       <hr aria-hidden='true' className='border-base-200' />
@@ -267,6 +311,48 @@ const ReadingQuickPanel: React.FC<ReadingQuickPanelProps> = ({
           </button>
         </div>
       </div>
+
+      <div className='flex flex-col gap-1'>
+        <span className='text-sm'>
+          {_('Page Turn')}
+          {viewSettings.isEink && (
+            <span className='text-base-content/60'> · {_('off in E-Ink Mode')}</span>
+          )}
+        </span>
+        <div className='flex gap-1' role='group' aria-label={_('Page Turn')}>
+          {PAGE_TURNS.map(({ value, label }) => (
+            <button
+              key={value}
+              type='button'
+              disabled={viewSettings.isEink}
+              aria-pressed={currentPageTurn === value}
+              className={pillClass(currentPageTurn === value)}
+              onClick={() => handlePageTurnChange(value)}
+            >
+              {_(label)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {currentPageTurn !== 'off' && !viewSettings.isEink && (
+        <div className='flex flex-col gap-1'>
+          <span className='text-sm'>{_('Turn Speed')}</span>
+          <div className='flex gap-1' role='group' aria-label={_('Turn Speed')}>
+            {PAGE_TURN_SPEEDS.map(({ value, label }) => (
+              <button
+                key={value}
+                type='button'
+                aria-pressed={viewSettings.pageTurnSpeed === value}
+                className={pillClass(viewSettings.pageTurnSpeed === value)}
+                onClick={() => handlePageTurnSpeedChange(value)}
+              >
+                {_(label)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className='flex items-center justify-between'>
         <span className='text-sm'>{_('E-Ink Mode')}</span>

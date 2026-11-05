@@ -32,6 +32,7 @@ export interface NativePaperCommand {
   grabY?: number;
   commit?: boolean;
   velocity?: number;
+  durationScale?: number;
   columns?: number;
   flip?: boolean;
 }
@@ -376,6 +377,7 @@ export class NativePageTurn extends CapturedPageTurn {
           turnId: session.id,
           commit,
           velocity,
+          durationScale: this.host.getTurnDurationScale?.() ?? 1,
           progress: session.progress,
           grabY: session.grabY,
         });

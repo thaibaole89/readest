@@ -372,6 +372,7 @@ export interface BookLanguage {
 // 'flip' lifts the whole sheet over the spine. The apps' captured and native
 // turns draw it; a spread and the web turn it as a 'curl'.
 export type PageTurnStyle = 'push' | 'slide' | 'curl' | 'flip';
+export type PageTurnSpeed = 'fast' | 'normal' | 'slow';
 export interface ViewConfig {
   sideBarTab: string;
   uiLanguage: string;
@@ -415,6 +416,7 @@ export interface ViewConfig {
 
   animated: boolean;
   pageTurnStyle: PageTurnStyle;
+  pageTurnSpeed: PageTurnSpeed;
   isEink: boolean;
   isColorEink: boolean;
   /**

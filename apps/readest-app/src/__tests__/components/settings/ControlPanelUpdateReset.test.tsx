@@ -153,7 +153,7 @@ describe('Behavior animation reset', () => {
   it.each([
     'slide',
     'curl',
-  ] as const)('restores the push animation style from %s', async (style) => {
+  ] as const)('restores the default flip animation style from %s', async (style) => {
     useSettingsStore.setState({
       settings: {
         ...useSettingsStore.getState().settings,
@@ -168,10 +168,11 @@ describe('Behavior animation reset', () => {
 
     await act(async () => registerReset.mock.calls[0]![0]());
 
-    expect(styleSelect().value).toBe('push');
+    // Personal fork: pages turn like a real book by default; off Tauri, Flip shows as Curl.
+    expect(styleSelect().value).toBe('curl');
     expect(savedSettings().globalViewSettings).toMatchObject({
-      animated: false,
-      pageTurnStyle: 'push',
+      animated: true,
+      pageTurnStyle: 'flip',
     });
   });
 });

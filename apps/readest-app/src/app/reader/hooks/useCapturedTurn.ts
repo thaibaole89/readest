@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { FoliateView } from '@/types/view';
 import { ViewSettings } from '@/types/book';
+import { PAGE_TURN_SPEED_SCALE } from '@/services/constants';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -95,6 +96,24 @@ export const getCapturedTurnStyle = (
   return null;
 };
 
+const getTurnDurationScale = (viewSettings: ViewSettings | null) =>
+  PAGE_TURN_SPEED_SCALE[viewSettings?.pageTurnSpeed ?? 'normal'];
+
+const PAGINATOR_SLIDE_MS = 300;
+const SLIDE_SPEED_STYLE_ID = 'page-turn-speed';
+
+/** The paginator's slide runs from its own stylesheet, so its timing is overridden there. */
+const applySlideTurnSpeed = (scale: number) => {
+  const existing = document.getElementById(SLIDE_SPEED_STYLE_ID);
+  const style = existing ?? document.head.appendChild(document.createElement('style'));
+  style.id = SLIDE_SPEED_STYLE_ID;
+  style.textContent = `
+    .foliate-vt-slide::view-transition-old(foliate-turn),
+    .foliate-vt-slide::view-transition-new(foliate-turn) {
+      animation-duration: ${PAGINATOR_SLIDE_MS * scale}ms !important;
+    }`;
+};
+
 /**
  * Single source of truth for the page-turn renderer attributes. When a
  * captured turn is active the paginator must stay out of the way: no
@@ -110,6 +129,7 @@ export const applyPageTurnAttributes = (
   isFixedLayout: boolean,
   prepareNativeSlide = getInitializedAppService()?.isMobileApp === true,
 ) => {
+  applySlideTurnSpeed(getTurnDurationScale(viewSettings));
   const captured = getCapturedTurnStyle(viewSettings, isFixedLayout, prepareNativeSlide);
   const style = viewSettings.pageTurnStyle === 'flip' ? 'curl' : viewSettings.pageTurnStyle;
   if (style && style !== 'push' && !captured && detectViewTransitionGroup()) {
@@ -464,6 +484,7 @@ export const useCapturedTurn = (bookKey: string, viewRef: React.RefObject<Foliat
         if (shouldRestore) await syncToolbarVisibility(true);
       },
       isPageFlip: () => getViewSettings(bookKey)?.pageTurnStyle === 'flip',
+      getTurnDurationScale: () => getTurnDurationScale(getViewSettings(bookKey)),
       navigate: async (forward: boolean) => {
         if (pageBuffer.preparing) await pageBuffer.preparing;
         await navigationPending;

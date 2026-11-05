@@ -554,8 +554,28 @@ describe('getColorStyles branches (via getStyles)', () => {
     const vs = makeViewSettings({ overrideColor: false });
     const theme = makeThemeCode({ bg: '#fff', fg: '#000' });
     const css = getStyles(vs, theme);
-    // Should not have !important color override on section/div/p etc
-    expect(css).not.toMatch(/section,.*\{[^}]*color: #000 !important/);
+    // Text color is forced at zero specificity; backgrounds stay the book's
+    expect(css).toMatch(/:where\(div, p,[^}]*color: #000 !important/);
+    expect(css).not.toMatch(/section,.*\{[^}]*background-color: [^;]* !important/);
+  });
+
+  it('keeps a dialogue text color only where the theme can show it', () => {
+    const vs = makeViewSettings({
+      dialogueHighlightCustomTextColor: true,
+      dialogueHighlightTextColor: '#4a4a4a',
+    });
+
+    const onDark = getStyles(vs, makeThemeCode({ bg: '#000000', fg: '#ffffff', isDarkMode: true }));
+    const onLight = getStyles(vs, makeThemeCode({ bg: '#ffffff', fg: '#000000' }));
+
+    expect(onDark).not.toContain('color: #4a4a4a !important');
+    expect(onLight).toContain('color: #4a4a4a !important');
+  });
+
+  it('lets Line Spacing beat a line-height hardcoded in the book', () => {
+    const vs = makeViewSettings({ lineHeight: 1.9, overrideLayout: false });
+
+    expect(getStyles(vs, makeThemeCode())).toContain('line-height: 1.9 !important');
   });
 
   it('applies invert filter on images when isDarkMode and invertImgColorInDark are true', () => {
